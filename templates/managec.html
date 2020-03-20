@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<style type="text/css">
+    .redfont{ color:#F00}
+	.mask_class{
+		display: none;
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		position: fixed;
+		top:0;
+		left: 0;
+		z-index: 999;
+	}
+	.box_class{
+		display: none;
+		width: 400px;
+		height: 150px;
+		background-color: #d3d3d3;
+		position: absolute;
+		left:  20%;
+		top: 20%;
+		z-index: 1000;
+	}
+	.box_class span{
+		width: 30px;
+		height: 30px;
+		position: absolute;
+		top:10px;
+		right: 10px;
+		cursor: pointer;
+	}
+</style>
+
+
+<head>
+  <meta charset="utf-8">
+  <title>老师管理成绩页面</title>
+  <meta name="description" content="particles.js is a lightweight JavaScript library for creating particles.">
+  <meta name="author" content="Vincent Garreau" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" media="screen" href="../static/css/style.css">
+  <link rel="stylesheet" type="text/css" href="../static/css/reset.css"/>
+</head>
+<body>
+
+<div id="particles-message">
+        <div class="quit">
+            <form method="post" action="/back/">
+                {% csrf_token %}
+                <button class="quit-button">返回主页</button>
+            </form>
+        </div>
+		<div class="message">
+			<div class="login-top">
+				老师基本信息:
+			</div>
+                <div class="login-center clearfix">
+                    <div class="message-center-img"><img src="../static/img/name.png"/></div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             工号：{{ data.username }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             姓名：{{ data.tname }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             性别：{{ data.sex }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             学院：{{ data.academy }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             年龄：{{ data.age }}
+                        </div>
+                    </div>
+                </div>
+		</div>
+        <div class="table-selecting">
+            <div class="message-top">
+				管理成绩课表:
+			</div>
+            <table class="altrowstable" id="alternatecolor">
+                 <thead>
+            <tr>
+                <th>学号</th>
+                <th>姓名</th>
+                <th>课号</th>
+                <th>课名</th>
+                <th>老师编号</th>
+                <th>老师姓名</th>
+                <th>平时成绩</th>
+                <th>考试成绩</th>
+                <th>总评成绩</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in table_e %}
+                <tr>
+                    <td>{{ item.sid }}</td>
+                    <td>{{ item.sname }}</td>
+                    <td>{{ item.cid }}</td>
+                    <td>{{ item.cname }}</td>
+                    <td>{{ item.tid }}</td>
+                    <td>{{ item.tname }}</td>
+                    <td href="#" id="pscj" onclick="b_click({{ item.sid }},{{ item.cid }},{{ item.tid }},'pscj')">{{ item.pscj }}</td>
+                    <td href="#" id="kscj" onclick="b_click({{ item.sid }},{{ item.cid }},{{ item.tid }},'kscj')">{{ item.kscj }}</td>
+                    <td>{{ item.zpcj }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            <div class="login-warn">{{ flag }}</div>
+            <br>
+            <div id="mask" class="mask_class"></div>
+            <div id="box" class="box_class">
+            <span onclick="b_close()" style="font-size: 30px"  class="redfont">x</span>
+            <br>
+                <div class="message-top">
+				修改成绩页面:
+			    </div>
+            <form method="post" action="/changegrade/">
+                {% csrf_token %}
+                 <input type="hidden" id="sid" value="" name="sid">
+                <input type="hidden" id="cid" value="" name="cid">
+                <input type="hidden" id="tid" value="" name="tid">
+                <input type="hidden" id="kind" value="" name="kind">
+                <div class="login-center-input">
+                        <input type="number" name="newcj" value="" placeholder="请输入新成绩" onfocus="this.placeholder=''" onblur="this.placeholder='请输入新成绩'"/>
+                        <div class="login-center-input-text">新成绩</div>
+                </div>
+                <div align="center">
+                    <button type="submit" onclick="b_close()" class="message-button3">确认</button>
+                </div>
+            </form>
+            </div>
+        </div>
+		<div class="sk-rotating-plane"></div>
+</div>
+
+<!-- scripts -->
+<script type="text/javascript">
+	function hasClass(elem, cls) {
+	  cls = cls || '';
+	  if (cls.replace(/\s/g, '').length == 0) return false; //当cls没有参数时，返回false
+	  return new RegExp(' ' + cls + ' ').test(' ' + elem.className + ' ');
+	}
+
+	function addClass(ele, cls) {
+	  if (!hasClass(ele, cls)) {
+	    ele.className = ele.className == '' ? cls : ele.className + ' ' + cls;
+	  }
+	}
+
+	function removeClass(ele, cls) {
+	  if (hasClass(ele, cls)) {
+	    var newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
+	    while (newClass.indexOf(' ' + cls + ' ') >= 0) {
+	      newClass = newClass.replace(' ' + cls + ' ', ' ');
+	    }
+	    ele.className = newClass.replace(/^\s+|\s+$/g, '');
+	  }
+	}
+
+
+		function altRows(id)
+        {
+            if(document.getElementsByTagName){
+
+                var table = document.getElementById(id);
+                var rows = table.getElementsByTagName("tr");
+
+                for(i = 0; i < rows.length; i++){
+                    if(i % 2 == 0){
+                        rows[i].className = "evenrowcolor";
+                    }else{
+                        rows[i].className = "oddrowcolor";
+                    }
+                }
+            }
+        }
+
+        window.onload=function()
+        {
+            //altRows('alternatecolor');
+        }
+        //var login = document.getElementById("login");
+		function b_click(sid,cid,tid,kind){
+			var mask = document.getElementById("mask");
+			var box = document.getElementById("box");
+			mask.style.display = "block";
+			box.style.display = "block";
+			cid=("000000000"+cid).substr(-5)
+            document.getElementById("sid").value = sid.toString();
+            document.getElementById("cid").value = cid.toString();
+            document.getElementById("tid").value = tid.toString();
+            document.getElementById("kind").value = kind.toString();
+		}
+		function b_close(){
+			var mask = document.getElementById("mask");
+			var box = document.getElementById("box");
+			mask.style.display = "none";
+			box.style.display = "none";
+		}
+</script>
+<div style="text-align:center;">
+</div>
+</body>
+</html>

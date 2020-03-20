@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<style type="text/css">
+    .redfont{ color:#F00}
+	.mask_class{
+		display: none;
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		position: fixed;
+		top:0;
+		left: 0;
+		z-index: 999;
+	}
+	.box_class{
+		display: none;
+		width: 400px;
+		height: 280px;
+		background-color: #d3d3d3;
+		position: absolute;
+		left:  20%;
+		top: 20%;
+		z-index: 1000;
+	}
+	.box_class span{
+		width: 30px;
+		height: 30px;
+		position: absolute;
+		top:10px;
+		right: 10px;
+		cursor: pointer;
+	}
+</style>
+
+
+<head>
+  <meta charset="utf-8">
+  <title>老师登陆页面</title>
+  <meta name="description" content="particles.js is a lightweight JavaScript library for creating particles.">
+  <meta name="author" content="Vincent Garreau" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" media="screen" href="../static/css/style.css">
+  <link rel="stylesheet" type="text/css" href="../static/css/reset.css"/>
+</head>
+<body>
+
+<div id="particles-message">
+        <div class="quit">
+            <form method="post" action="/quit/">
+                {% csrf_token %}
+                <button class="quit-button">退出登录</button>
+            </form>
+        </div>
+		<div class="message">
+			<div class="login-top">
+				老师基本信息:
+			</div>
+                <div class="login-center clearfix">
+                    <div class="message-center-img"><img src="../static/img/name.png"/></div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             工号：{{ data.username }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             姓名：{{ data.tname }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             性别：{{ data.sex }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             学院：{{ data.academy }}
+                        </div>
+                    </div>
+                    <div class="login-center-input">
+                        <div class="message-txt">
+                             年龄：{{ data.age }}
+                        </div>
+                    </div>
+                </div>
+
+		</div>
+        <div class="table-selecting">
+            <div class="message-top">
+				已开课表:
+			</div>
+            <table class="altrowstable" id="alternatecolor">
+                <thead>
+                <tr>
+                    <th>课号</th>
+                    <th>课名</th>
+                    <th>学院</th>
+                    <th>老师姓名</th>
+                    <th>老师编号</th>
+                    <th>学分</th>
+                    <th>考试占比</th>
+                    <th>平时占比</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in table %}
+                    <tr>
+                        <td>{{ item.cid }}</td>
+                        <td>{{ item.cname }}</td>
+                        <td>{{ item.academy }}</td>
+                        <td>{{ item.tname }}</td>
+                        <td>{{ item.tid }}</td>
+                        <td>{{ item.credit }}</td>
+                        <td>{{ item.test }}</td>
+                        <td>{{ item.normal }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form action="/managec/" method="post">
+            {% csrf_token %}
+            <select id="cno" name="cno">
+                {% for item in table %}
+                    <option value={{ item.cid }}>
+                        {{ item.cid }}
+                        {{ item.cname }}
+                        {{ item.academy }}
+                        {{ item.credit }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" name="managec" class="message-button">管理</button>
+            </form>
+                    <button type="submit" name="openc" onclick="b_click()" class="message-button1">开课</button>
+            <br>
+            <div class="login-warn">{{ flag }}</div>
+            <br>
+            <div id="mask" class="mask_class"></div>
+            <div id="box" class="box_class">
+            <span onclick="b_close()" style="font-size: 30px"  class="redfont">x</span>
+            <br>
+                <div class="message-top">
+				开课页面:
+			    </div>
+            <form method="post" action="/opencrouse/">
+                {% csrf_token %}
+                <div class="login-center-input">
+                        <input type="text" name="cid" value="" placeholder="请输入课号" onfocus="this.placeholder=''" onblur="this.placeholder='请输入课号'"/>
+                        <div class="login-center-input-text">课号</div>
+                </div>
+                <br>
+                <div class="login-center-input">
+                        <input type="text" name="cname" value="" placeholder="请输入课名" onfocus="this.placeholder=''" onblur="this.placeholder='请输入课名'"/>
+                        <div class="login-center-input-text">课名</div>
+                </div>
+                <br>
+                <div class="login-center-input">
+                        <input type="text" name="academy" value="" placeholder="请输入学院" onfocus="this.placeholder=''" onblur="this.placeholder='请输入学院'"/>
+                        <div class="login-center-input-text">学院</div>
+                </div>
+                <br>
+                <div class="login-center-input">
+                        <input type="text" name="credit" value="" placeholder="请输入学分" onfocus="this.placeholder=''" onblur="this.placeholder='请输入学分'"/>
+                        <div class="login-center-input-text">学分</div>
+                </div>
+                <br>
+                <div class="login-center-input">
+                        <input type="number" name="test" value="" placeholder="请输入考试占比" onfocus="this.placeholder=''" onblur="this.placeholder='请输入考试占比'"/>
+                        <div class="login-center-input-text">考试占比</div>
+                </div>
+                <br>
+                <div class="login-center-input">
+                        <input type="number" name="normal" value="" placeholder="请输入平时占比" onfocus="this.placeholder=''" onblur="this.placeholder='请输入平时占比'"/>
+                        <div class="login-center-input-text">平时占比</div>
+                </div>
+                <br>
+                <div align="center">
+                    <button type="submit" onclick="b_close()" class="message-button2">开课</button>
+                </div>
+            </form>
+            </div>
+        </div>
+		<div class="sk-rotating-plane"></div>
+</div>
+
+<!-- scripts -->
+<script type="text/javascript">
+	function hasClass(elem, cls) {
+	  cls = cls || '';
+	  if (cls.replace(/\s/g, '').length == 0) return false; //当cls没有参数时，返回false
+	  return new RegExp(' ' + cls + ' ').test(' ' + elem.className + ' ');
+	}
+
+	function addClass(ele, cls) {
+	  if (!hasClass(ele, cls)) {
+	    ele.className = ele.className == '' ? cls : ele.className + ' ' + cls;
+	  }
+	}
+
+	function removeClass(ele, cls) {
+	  if (hasClass(ele, cls)) {
+	    var newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
+	    while (newClass.indexOf(' ' + cls + ' ') >= 0) {
+	      newClass = newClass.replace(' ' + cls + ' ', ' ');
+	    }
+	    ele.className = newClass.replace(/^\s+|\s+$/g, '');
+	  }
+	}
+
+		function altRows(id)
+        {
+            if(document.getElementsByTagName){
+
+                var table = document.getElementById(id);
+                var rows = table.getElementsByTagName("tr");
+
+                for(i = 0; i < rows.length; i++){
+                    if(i % 2 == 0){
+                        rows[i].className = "evenrowcolor";
+                    }else{
+                        rows[i].className = "oddrowcolor";
+                    }
+                }
+            }
+        }
+
+        window.onload=function()
+        {
+            //altRows('alternatecolor');
+        }
+        //var login = document.getElementById("login");
+		function b_click(){
+			var mask = document.getElementById("mask");
+			var box = document.getElementById("box");
+			mask.style.display = "block";
+			box.style.display = "block";
+		}
+		function b_close(){
+			var mask = document.getElementById("mask");
+			var box = document.getElementById("box");
+			mask.style.display = "none";
+			box.style.display = "none";
+		}
+</script>
+<div style="text-align:center;">
+</div>
+</body>
+</html>
